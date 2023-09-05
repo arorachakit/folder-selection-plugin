@@ -3,13 +3,19 @@ import FieldPluginExample from './components/FieldPluginExample'
 import { FunctionComponent } from 'react'
 import { FieldPluginProvider } from '@storyblok/field-plugin/react'
 
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import { lightTheme } from '@storyblok/mui'
+
 const App: FunctionComponent = () => {
   return (
     <FieldPluginProvider
       Loading={Loading}
       Error={Error}
     >
-      <FieldPluginExample />
+       <ThemeProvider theme={lightTheme}>
+        <CssBaseline />
+        <FieldPlugin />
+      </ThemeProvider>
     </FieldPluginProvider>
   )
 }
