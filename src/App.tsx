@@ -1,5 +1,4 @@
 import FieldPlugin from './components/FieldPlugin'
-import FieldPluginExample from './components/FieldPluginExample'
 import { FunctionComponent } from 'react'
 import { FieldPluginProvider } from '@storyblok/field-plugin/react'
 
@@ -12,7 +11,7 @@ const App: FunctionComponent = () => {
       Loading={Loading}
       Error={Error}
     >
-       <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         <FieldPlugin />
       </ThemeProvider>
