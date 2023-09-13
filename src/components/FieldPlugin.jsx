@@ -4,7 +4,7 @@ import { useFieldPlugin } from '@storyblok/field-plugin/react'
 import { TextField, Autocomplete } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import Checkbox from '@mui/material/Checkbox'
-import ListItemText from '@mui/material/ListItemText'
+import ListItemText from '@mui/material/ListItemText';
 
 const FieldPlugin = () => {
   const {
@@ -16,56 +16,29 @@ const FieldPlugin = () => {
   const [selectOpen, setSelectOpen] = useState(false)
 
   // Intial content of the plugin
-  const isArrayOfStrings = (value) =>
-    Array.isArray(value) && value.every((it) => typeof it === 'string')
-  const inital_value = isArrayOfStrings(data.content) ? data.content : []
-
+  const isArrayOfObjects = (value) =>
+    Array.isArray(value) && value.every((it) => typeof it === 'object')
+  const content = isArrayOfObjects(data.content) ? data.content : []
   // Extracting starts_with from options
-  const starts_with = data.options.starts_with ?? ''
+  const startsWith = data.options.starts_with ?? ''
+  // Using space token
+  const token = data.token
+
+  const maximum = Number(data.options.maximum)
 
   useEffect(() => {
-    // Get folders and filter according to starts_with
-    const getFoldersAndFilter = async () => {
-      // Using space token
-      const token = data.token
-      // Fetch all links
-      let response = await fetch(
-        `https://api.storyblok.com/v2/cdn/links/?token=${token}&starts_with=${starts_with}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-        },
-      )
+    getFolders(token, startsWith).then(setFolders)
+  }, [token, startsWith])
 
-      const all_links = await response.json()
-
-      // Map Folders
-      let filteredFolders = Object.values(all_links.links)
-        .filter((l) => l.is_folder)
-        .map((f) =>
-          // Storing id, name, slug, uuid
-          ({
-            id: f.id,
-            name: f.name,
-            slug: f.slug,
-            uuid: f.uuid,
-          }),
-        )
-
-      setFolders(() => filteredFolders)
-      setContent(() =>
-        filteredFolders.filter((f) => inital_value.some((c) => c.id === f.id)),
-      )
-    }
-    getFoldersAndFilter()
-  }, [])
+  const foldersInContent = folders.filter((folder) =>
+    content.some((c) => c.id === folder.id),
+  )
 
   return (
     <Autocomplete
-      sx={{ minWidth: 120, minHeight: selectOpen ? 250 : 0 }}
+      sx={{ minWidth: 120, minHeight: selectOpen ? 300 : 0 }}
       multiple
+      value={foldersInContent}
       options={folders}
       getOptionLabel={(folder) => folder.name}
       disableCloseOnSelect
@@ -76,6 +49,7 @@ const FieldPlugin = () => {
           placeholder="Select Folders"
         />
       )}
+      open={selectOpen}
       onOpen={() => setSelectOpen(true)}
       onClose={() => setSelectOpen(false)}
       onChange={(event, value) => setContent(value)}
@@ -86,11 +60,7 @@ const FieldPlugin = () => {
           key={option.id}
           value={option}
           sx={{ justifyContent: 'space-between' }}
-          disabled={
-            Number(data.options.maximum)
-              ? data.content.length >= Number(data.options.maximum) && !selected
-              : false
-          }
+          disabled={!!maximum && content.length >= maximum && !selected}
         >
           <Checkbox checked={selected} />
           <ListItemText
@@ -101,6 +71,34 @@ const FieldPlugin = () => {
       )}
     />
   )
+}
+const getFolders = async (token, startsWith) => {
+  // Get folders and filter according to starts_with
+  // Fetch all links
+  let response = await fetch(
+    `https://api.storyblok.com/v2/cdn/links/?token=${token}&starts_with=${startsWith}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    },
+  )
+
+  const allLinks = await response.json()
+
+  // Map Folders
+  return Object.values(allLinks.links)
+    .filter((l) => l.is_folder)
+    .map((f) =>
+      // Storing id, name, slug, uuid
+      ({
+        id: f.id,
+        name: f.name,
+        slug: f.slug,
+        uuid: f.uuid,
+      }),
+    )
 }
 
 export default FieldPlugin
