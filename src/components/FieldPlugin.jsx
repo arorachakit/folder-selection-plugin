@@ -1,11 +1,32 @@
 import { useEffect, useState } from 'react'
 import { useFieldPlugin } from '@storyblok/field-plugin/react'
-
-import { TextField, Autocomplete } from '@mui/material'
+import { TextField, Autocomplete, styled, Box, Paper } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import Checkbox from '@mui/material/Checkbox'
-import ListItemText from '@mui/material/ListItemText';
-
+import ListItemText from '@mui/material/ListItemText'
+const StyledAutocomplete = styled(Autocomplete)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+}))
+const StyledPopper = styled(Box)(({ theme }) => ({
+  position: 'relative !important',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  // maxHeight: 'unset !important',
+  marginTop: theme.spacing(2),
+  width: 'unset !important',
+  maxHeight: 300,
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius,
+}))
+const StyledPaper = styled(Paper)(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+}))
+const StyledListBox = styled(Box)(() => ({
+  maxHeight: 'unset !important',
+}))
 const FieldPlugin = () => {
   const {
     data,
@@ -35,8 +56,7 @@ const FieldPlugin = () => {
   )
 
   return (
-    <Autocomplete
-      sx={{ minWidth: 120, minHeight: selectOpen ? 300 : 0 }}
+    <StyledAutocomplete
       multiple
       value={foldersInContent}
       options={folders}
@@ -49,6 +69,17 @@ const FieldPlugin = () => {
           placeholder="Select Folders"
         />
       )}
+      componentsProps={{
+        popper: {
+          sx: {
+            display: selectOpen ? undefined : 'none',
+          },
+        },
+      }}
+      PopperComponent={StyledPopper}
+      PaperComponent={StyledPaper}
+      ListboxComponent={StyledListBox}
+      noOptionsText="No folders matches the filter"
       open={selectOpen}
       onOpen={() => setSelectOpen(true)}
       onClose={() => setSelectOpen(false)}
@@ -84,9 +115,7 @@ const getFolders = async (token, startsWith) => {
       },
     },
   )
-
   const allLinks = await response.json()
-
   // Map Folders
   return Object.values(allLinks.links)
     .filter((l) => l.is_folder)
@@ -100,5 +129,4 @@ const getFolders = async (token, startsWith) => {
       }),
     )
 }
-
 export default FieldPlugin

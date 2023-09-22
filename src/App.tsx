@@ -2,7 +2,7 @@ import FieldPlugin from './components/FieldPlugin'
 import { FunctionComponent } from 'react'
 import { FieldPluginProvider } from '@storyblok/field-plugin/react'
 
-import { CssBaseline, ThemeProvider } from '@mui/material'
+import { CssBaseline, GlobalStyles, ThemeProvider } from '@mui/material'
 import { lightTheme } from '@storyblok/mui'
 
 const App: FunctionComponent = () => {
@@ -13,6 +13,11 @@ const App: FunctionComponent = () => {
     >
       <ThemeProvider theme={lightTheme}>
         <CssBaseline />
+        <GlobalStyles
+          styles={{
+            body: { backgroundColor: 'transparent' },
+          }}
+        />
         <FieldPlugin />
       </ThemeProvider>
     </FieldPluginProvider>
